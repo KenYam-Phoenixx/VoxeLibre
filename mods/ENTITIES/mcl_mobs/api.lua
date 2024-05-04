@@ -412,7 +412,7 @@ local function on_step_work (self, dtime)
 	self:check_suspend(player_in_active_range)
 
 	-- Handle environmental physics
-	mcl_physics.apply_entity_environmental_physics(self)
+	vl_physics.apply_entity_environmental_physics(self)
 
 	if not self._jumping_cliff then
 		self._can_jump_cliff = self:can_jump_cliff()
