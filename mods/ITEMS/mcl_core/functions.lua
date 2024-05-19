@@ -1239,6 +1239,10 @@ end
 
 local function vinedecay_particles(pos, node)
 	local dir = minetest.wallmounted_to_dir(node.param2)
+
+	-- Don't crash if the map data got corrupted somehow
+	if not dir then return end
+
 	local relpos1, relpos2
 	if dir.x < 0 then
 		relpos1 = { x = -0.45, y = -0.4, z = -0.5 }
@@ -1475,6 +1479,10 @@ Vines are considered “supported” if they face a walkable+solid block or “h
 function mcl_core.check_vines_supported(pos, node)
 	local supported = false
 	local dir = minetest.wallmounted_to_dir(node.param2)
+
+	-- Don't crash if the map data got corrupted somehow
+	if not dir then return false end
+
 	local pos1 = vector.add(pos, dir)
 	local node_neighbor = minetest.get_node(pos1)
 	-- Check if vines are attached to a solid block.
