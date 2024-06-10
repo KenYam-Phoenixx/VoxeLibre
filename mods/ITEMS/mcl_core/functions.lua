@@ -2,7 +2,9 @@
 -- Lava vs water interactions
 --
 
-local modpath = minetest.get_modpath(minetest.get_current_modname())
+local modname = minetest.get_current_modname()
+local modpath = minetest.get_modpath(modname)
+local S = minetest.get_translator(modname)
 
 local mg_name = minetest.get_mapgen_setting("mg_name")
 
@@ -1278,12 +1280,17 @@ end
 ---------------------
 -- Vine generating --
 ---------------------
+local do_vines_spread = vl_tuning.setting("gamerule:doVinesSpread", "bool", {
+	description = S("Whether vines can spread to other blocks. Cave vines, weeping vines, and twisting vines are not affected."),
+	default = true,
+})
 minetest.register_abm({
 	label = "Vines growth",
 	nodenames = {"mcl_core:vine"},
 	interval = 47,
 	chance = 4,
 	action = function(pos, node, active_object_count, active_object_count_wider)
+		if not do_vines_spread[1] then return end
 
 		-- First of all, check if we are even supported, otherwise, let's die!
 		if not mcl_core.check_vines_supported(pos, node) then
