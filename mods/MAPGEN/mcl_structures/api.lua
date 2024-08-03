@@ -326,7 +326,6 @@ function mcl_structures.place_structure(pos, def, pr, blockseed, rot)
 end
 
 local EMPTY_SCHEMATIC = { size = {x = 0, y = 0, z = 0}, data = { } }
-
 function mcl_structures.register_structure(name,def,nospawn) --nospawn means it will not be placed by mapgen decoration mechanism
 	if mcl_structures.is_disabled(name) then return end
 	flags = def.flags or "place_center_x, place_center_z, force_placement"
@@ -335,6 +334,7 @@ function mcl_structures.register_structure(name,def,nospawn) --nospawn means it 
 		minetest.register_on_mods_loaded(function() --make sure all previous decorations and biomes have been registered
 			def.deco = minetest.register_decoration({
 				name = "mcl_structures:deco_"..name,
+				priority = def.priority or (def.terrain_feature and 900) or 100, -- run before regular decorations
 				deco_type = "schematic",
 				schematic = EMPTY_SCHEMATIC,
 				place_on = def.place_on,

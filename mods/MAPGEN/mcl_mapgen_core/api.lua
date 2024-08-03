@@ -169,3 +169,54 @@ function mcl_mapgen_core.unregister_generator(id)
 	if rec.needs_param2 then param2 = param2 - 1 end
 	--if rec.needs_level0 then level0 = level0 - 1 end
 end
+
+-- Try to make decorations more deterministic in order, by sorting by priority and name
+-- At least for low-priority this should make map seeds more comparable, but
+-- adding for example a new structure can still change everything that comes
+-- later, because currently decoration blockseeds are incremented sequentially
+-- c.f., https://github.com/minetest/minetest/issues/14919
+local minetest_register_decoration = minetest.register_decoration
+local pending_decorations = {}
+function mcl_mapgen_core.register_decoration(def, callback)
+	if pending_decorations == nil then
+		minetest.log("warning", "Decoration registered after mapgen: "..tostring(def.name))
+		minetest_register_decoration(def)
+		if callback ~= nil then callback() end
+		return
+	end
+	def = table.copy(def) -- defensive deep copy, needed for water lily
+	def.callback = callback
+	table.insert(pending_decorations, def)
+end
+local function sort_decorations()
+	local keys, map = {}, {}
+	for i, def in pairs(pending_decorations) do
+		local name = def.name
+		-- we try to generate fallback names to make order more deterministic
+		name = name or (def.decoration and string.format("%s:%04d", def.decoration, i))
+		if not name and type(def.schematic) == "string" then
+			local sc = string.split(def.schematic, "/")
+			name = string.format("%s:%04d", sc[#sc], i)
+		end
+		if not name and type(def.schematic) == "table" and def.schematic.data then
+			name = ""
+			for _, v in ipairs(def.schematic.data) do
+				if v.name then name = name .. v.name .. ":" end
+			end
+			name = name .. string.format("%04d", i)
+		end
+		name = name or string.format("%04d", i)
+		local prio = (def.priority or 1000) + i/1000
+		local key = string.format("%08.3f:%s", prio, name)
+		table.insert(keys, key)
+		map[key] = def
+	end
+	table.sort(keys)
+	for _, key in ipairs(keys) do
+		-- minetest.log("action", "Deco: "..key)
+		minetest_register_decoration(map[key])
+		if map[key].callback then map[key].callback() end
+	end
+	pending_decorations = nil -- as we will not run again
+end
+minetest.register_on_mods_loaded(sort_decorations)
