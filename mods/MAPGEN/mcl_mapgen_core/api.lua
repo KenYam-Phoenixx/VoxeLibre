@@ -20,33 +20,6 @@ local function run_generators(minp, maxp, blockseed)
 	end
 end
 
-local function update_data (vm, data, data2)
-	-- Write stuff
-	vm:set_data(data)
-	if param2 > 0 then
-		vm:set_param2_data(data2)
-	end
-end
-
-local function post_generator_processing(vm, minp, maxp, deco_used, deco_table, ore_used, ore_table)
-	if deco_table then
-		minetest.generate_decorations(vm,vector.new(minp.x,deco_table.min,minp.z),vector.new(maxp.x,deco_table.max,maxp.z))
-	elseif deco_used then
-		minetest.generate_decorations(vm)
-	end
-	if ore_table then
-		minetest.generate_ores(vm,vector.new(minp.x,ore_table.min,minp.z),vector.new(maxp.x,ore_table.max,maxp.z))
-	elseif ore_used then
-		minetest.generate_ores(vm)
-	end
-end
-
-local function post_generator_processing_2(vm, p1, p2, shadow)
-	vm:calc_lighting(p1, p2, shadow)
-	vm:write_to_map()
-	vm:update_liquids()
-end
-
 minetest.register_on_generated(function(minp, maxp, blockseed)
 	local t1 = os.clock()
 	if lvm > 0 then
