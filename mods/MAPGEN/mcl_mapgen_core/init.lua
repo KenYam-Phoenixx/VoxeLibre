@@ -416,7 +416,7 @@ mcl_mapgen_core.register_generator("end_fixes", end_basic, nil, 9999, true)
 
 if mg_name ~= "v6" and mg_name ~= "singlenode" then
 	mcl_mapgen_core.register_generator("block_fixes_grass", block_fixes_grass, nil, 9999, true)
-	mcl_mapgen_core.register_generator("block_fixes_foliage", block_fixes_foliage, nil, 9999, true)
+	--mcl_mapgen_core.register_generator("block_fixes_foliage", block_fixes_foliage, nil, 9999, true)
 	mcl_mapgen_core.register_generator("block_fixes_water", block_fixes_water, nil, 9999, true)
 	mcl_mapgen_core.register_generator("block_fixes_seagrass", block_fixes_seagrass, nil, 9999, true)
 end
@@ -493,6 +493,7 @@ minetest.register_lbm({
 	end
 })
 
+--[[
 -- We go outside x and y for where trees are placed next to a biome that has already been generated.
 -- We go above maxp.y because trees can often get placed close to the top of a generated area and folliage may not
 -- be coloured correctly.
@@ -519,5 +520,5 @@ local function fix_foliage_missed(minp, maxp, blockseed)
 end
 
 minetest.register_on_generated(function(minp, maxp, blockseed) -- Set correct palette indexes of missed foliage.
-	fix_foliage_missed (minp, maxp)
-end)
+	fix_foliage_missed(minp, maxp)
+end)]]
