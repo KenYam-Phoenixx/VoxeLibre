@@ -1,6 +1,4 @@
 mcl_mapgen_core = {}
-local registered_generators = {}
-
 local modname = minetest.get_current_modname()
 local modpath = minetest.get_modpath(modname)
 
@@ -118,8 +116,6 @@ elseif mg_name == "fractal" then
 	mg_flags.caverns = true
 end
 
-
-
 local mg_flags_str = ""
 for k,v in pairs(mg_flags) do
 	if v == false then
@@ -211,12 +207,12 @@ end
 local function set_layers(data, area, content_id, check, min, max, minp, maxp, pr)
 	if maxp.y < min or minp.y > max then return false end
 	local lvm_used = false
-	if check == nil then
+	if not check then
 		for p_pos in area:iter(minp.x, math.max(min, minp.y), minp.z, maxp.x, math.min(max, maxp.y), maxp.z) do
 			data[p_pos] = content_id
 			lvm_used = true
 		end
-	elseif check and type(check) == "function" then
+	elseif type(check) == "function" then
 		-- slow path, needs vector coordinates (bedrock uses y only)
 		for p_pos in area:iter(minp.x, math.max(min, minp.y), minp.z, maxp.x, math.min(max, maxp.y), maxp.z) do
 			if check(area:position(p_pos), data[p_pos], pr) then
@@ -408,6 +404,7 @@ local function end_basic(vm, data, data2, emin, emax, area, minp, maxp, blocksee
 			end
 		end
 	end
+	lvm_used = true -- light is broken otherwise
 	return lvm_used, false
 end
 
@@ -416,7 +413,7 @@ mcl_mapgen_core.register_generator("end_fixes", end_basic, nil, 9999, true)
 
 if mg_name ~= "v6" and mg_name ~= "singlenode" then
 	mcl_mapgen_core.register_generator("block_fixes_grass", block_fixes_grass, nil, 9999, true)
-	--mcl_mapgen_core.register_generator("block_fixes_foliage", block_fixes_foliage, nil, 9999, true)
+	mcl_mapgen_core.register_generator("block_fixes_foliage", block_fixes_foliage, nil, 9999, true)
 	mcl_mapgen_core.register_generator("block_fixes_water", block_fixes_water, nil, 9999, true)
 	mcl_mapgen_core.register_generator("block_fixes_seagrass", block_fixes_seagrass, nil, 9999, true)
 end
@@ -425,6 +422,7 @@ if mg_name == "v6" then
 	dofile(modpath.."/v6.lua")
 end
 
+--[[
 minetest.register_lbm({
 	label = "Fix grass palette indexes", -- This LBM fixes any incorrect grass palette indexes.
 	name = "mcl_mapgen_core:fix_grass_palette_indexes",
@@ -493,7 +491,6 @@ minetest.register_lbm({
 	end
 })
 
---[[
 -- We go outside x and y for where trees are placed next to a biome that has already been generated.
 -- We go above maxp.y because trees can often get placed close to the top of a generated area and folliage may not
 -- be coloured correctly.
