@@ -385,6 +385,7 @@ end
 -- Chests
 local function PlaceChest(pos, param2)
 	if SetNodeIfCanBuild(pos, {name=tsm_railcorridors.nodes.chest, param2=param2}) then
+		vl_structures.construct_nodes(pos, pos, {tsm_railcorridors.nodes.chest})
 		local meta = minetest.get_meta(pos)
 		local inv = meta:get_inventory()
 		local items = tsm_railcorridors.get_treasures(pr)
@@ -397,7 +398,9 @@ end
 -- This is a workaround thanks to the fact that minetest.add_entity is unreliable as fuck
 -- See: https://github.com/minetest/minetest/issues/4759
 -- FIXME: Kill this horrible hack with fire as soon you can.
-local function RecheckCartHack(params)
+local RecheckCartHack = function() end
+if not minetest.features.random_state_restore then -- proxy for minetest > 5.9.0, this feature will not be removed
+RecheckCartHack = function(params)
 	local pos = params[1]
 	local cart_id = params[2]
 	-- Find cart
@@ -411,6 +414,7 @@ local function RecheckCartHack(params)
 		end
 	end
 	minetest.log("info", "[tsm_railcorridors] Cart spawn FAILED: "..minetest.pos_to_string(pos))
+end
 end
 
 -- Try to place a cobweb.
@@ -935,13 +939,17 @@ local function spawn_carts()
 			-- See <https://github.com/minetest/minetest/issues/4759>
 			local cart_id = tsm_railcorridors.carts[cart_type]
 			minetest.log("info", "[tsm_railcorridors] Cart spawn attempt: "..minetest.pos_to_string(cpos))
-			minetest.add_entity(cpos, cart_id)
+			local obj = minetest.add_entity(cpos, cart_id)
 
 			-- This checks if the cart is actually spawned, it's a giant hack!
 			-- Note that the callback function is also called there.
 			-- TODO: Move callback function to this position when the
 			-- minetest.add_entity bug has been fixed (supposedly in 5.9.0?)
-			minetest.after(3, RecheckCartHack, {cpos, cart_id})
+			if RecheckCartHack then
+				minetest.after(3, RecheckCartHack, {cpos, cart_id})
+			else
+				tsm_railcorridors.on_construct_cart(cpos, obj, pr_carts)
+			end
 		end
 	end
 	carts_table = {}
