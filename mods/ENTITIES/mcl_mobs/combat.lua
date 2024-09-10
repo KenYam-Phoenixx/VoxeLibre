@@ -1236,13 +1236,14 @@ function mob_class:do_states_attack (dtime)
 					minetest.after(1, function()
 						self.firing = false
 					end)
-					arrow = minetest.add_entity(p, self.arrow)
+
+					arrow = vl_projectile.create(self.arrow, {
+						pos = p,
+						owner = self,
+					})
 					ent = arrow:get_luaentity()
-					if ent.velocity then
-						v = ent.velocity
-					end
 					ent.switch = 1
-					ent.owner_id = tostring(self.object) -- add unique owner id to arrow
+					v = ent.velocity or 1
 
 					-- important for mcl_shields
 					ent._shooter = self.object
@@ -1252,12 +1253,10 @@ function mob_class:do_states_attack (dtime)
 					end
 				end
 
-				local amount = (vec.x * vec.x + vec.y * vec.y + vec.z * vec.z) ^ 0.5
 				-- offset makes shoot aim accurate
-				vec.y = vec.y + self.shoot_offset
-				vec.x = vec.x * (v / amount)
-				vec.y = vec.y * (v / amount)
-				vec.z = vec.z * (v / amount)
+				local amount = vector.length(vec)
+				vec = vector.multiply(vec, v / vector.length(vec))
+
 				if self.shoot_arrow then
 					vec = vector.normalize(vec)
 					self:shoot_arrow(p, vec)
