@@ -1242,8 +1242,8 @@ function mob_class:do_states_attack (dtime)
 						owner = self,
 					})
 					ent = arrow:get_luaentity()
+					v = ent.velocity or v
 					ent.switch = 1
-					v = ent.velocity or 1
 
 					-- important for mcl_shields
 					ent._shooter = self.object
@@ -1255,7 +1255,8 @@ function mob_class:do_states_attack (dtime)
 
 				-- offset makes shoot aim accurate
 				local amount = vector.length(vec)
-				vec = vector.multiply(vec, v / vector.length(vec))
+				vec.y = vec.y + self.shoot_offset
+				vec = vector.multiply(vec, v / amount)
 
 				if self.shoot_arrow then
 					vec = vector.normalize(vec)
