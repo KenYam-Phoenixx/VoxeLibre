@@ -46,9 +46,9 @@ function vl_hollow_logs.register_hollow_log(defs)
 		table.update(groups, {fire_encouragement = 5, fire_flammability = 5, flammable = 2, hollow_log_burnable = 1})
 	end
 
-	minetest.register_node(modname .. ":"..name.."_hollow", {
+	local hollow_log_def = {
 		collision_box = collisionbox,
-		description = S(desc),
+		description = desc,
 		drawtype = "mesh",
 		groups = groups,
 		mesh = "vl_hollow_logs_log.obj",
@@ -62,47 +62,39 @@ function vl_hollow_logs.register_hollow_log(defs)
 		_mcl_blast_resistance = 2,
 		_mcl_hardness = 2,
 		_mcl_stripped_variant = modname .. ":stripped_"..name.."_hollow"
-	})
+	}
 
-	minetest.register_node(modname .. ":"..stripped_name.."_hollow", {
-		collision_box = collisionbox,
-		description = S(stripped_desc),
-		drawtype = "mesh",
-		groups = groups,
-		mesh = "vl_hollow_logs_log.obj",
-		on_place = mcl_util.rotate_axis,
-		paramtype = "light",
-		paramtype2 = "facedir",
-		use_texture_alpha = "clip",
-		sounds = mcl_sounds.node_sound_wood_defaults(),
-		sunlight_propagates = true,
-		tiles = {modname .. "_stripped_"..name..".png"},
-		_mcl_blast_resistance = 2,
-		_mcl_hardness = 2
-	})
+	local stripped_hollow_log_def = table.copy(hollow_log_def)
+	stripped_hollow_log_def.description = stripped_desc
+	stripped_hollow_log_def.tiles = {modname .. "_stripped_"..name..".png"}
+	stripped_hollow_log_def._mcl_stripped_variant = nil
+
+	minetest.register_node(modname .. ":"..name.."_hollow", hollow_log_def)
+
+	minetest.register_node(modname .. ":"..stripped_name.."_hollow", stripped_hollow_log_def)
 end
 
 vl_hollow_logs.logs = {
-	{"acaciatree", "stripped_acacia", "Hollow Acacia Log", "Stripped Hollow Acacia Log"},
-	{"birchtree", "stripped_birch", "Hollow Birch Log", "Stripped Hollow Birch Log"},
-	{"darktree", "stripped_dark_oak", "Hollow Dark Oak Log", "Stripped Hollow Dark Oak Log"},
-	{"jungletree", "stripped_jungle", "Hollow Jungle Log", "Stripped Hollow Jungle Log"},
-	{"sprucetree", "stripped_spruce", "Hollow Spruce Log", "Stripped Hollow Spruce Log"},
-	{"tree", "stripped_oak", "Hollow Oak Log", "Stripped Hollow Oak Log"}
+	{"acaciatree", "stripped_acacia", S("Hollow Acacia Log"), S("Stripped Hollow Acacia Log")},
+	{"birchtree", "stripped_birch", S("Hollow Birch Log"), S("Stripped Hollow Birch Log")},
+	{"darktree", "stripped_dark_oak", S("Hollow Dark Oak Log"), S("Stripped Hollow Dark Oak Log")},
+	{"jungletree", "stripped_jungle", S("Hollow Jungle Log"), S("Stripped Hollow Jungle Log")},
+	{"sprucetree", "stripped_spruce", S("Hollow Spruce Log"), S("Stripped Hollow Spruce Log")},
+	{"tree", "stripped_oak", S("Hollow Oak Log"), S("Stripped Hollow Oak Log")}
 }
 
 
 if minetest.get_modpath("mcl_cherry_blossom") then
-	table.insert(vl_hollow_logs.logs, {"cherrytree", "stripped_cherrytree", "Hollow Cherry Log", "Stripped Hollow Cherry Log"})
+	table.insert(vl_hollow_logs.logs, {"cherrytree", "stripped_cherrytree", S("Hollow Cherry Log"), S("Stripped Hollow Cherry Log")})
 end
 
 if minetest.get_modpath("mcl_mangrove") then
-	table.insert(vl_hollow_logs.logs, {"mangrove_tree", "mangrove_stripped", "Hollow Mangrove Log", "Stripped Hollow Mangrove Log"})
+	table.insert(vl_hollow_logs.logs, {"mangrove_tree", "mangrove_stripped", S("Hollow Mangrove Log"), S("Stripped Hollow Mangrove Log")})
 end
 
 if minetest.get_modpath("mcl_crimson") then
-	table.insert(vl_hollow_logs.logs, {"crimson_hyphae", "stripped_crimson_hyphae", "Hollow Crimson Stem", "Stripped Hollow Crimson Stem", true})
-	table.insert(vl_hollow_logs.logs, {"warped_hyphae", "stripped_warped_hyphae", "Hollow Warped Stem", "Stripped Hollow Warped Stem", true})
+	table.insert(vl_hollow_logs.logs, {"crimson_hyphae", "stripped_crimson_hyphae", S("Hollow Crimson Stem"), S("Stripped Hollow Crimson Stem"), true})
+	table.insert(vl_hollow_logs.logs, {"warped_hyphae", "stripped_warped_hyphae", S("Hollow Warped Stem"), S("Stripped Hollow Warped Stem"), true})
 end
 
 for _, defs in pairs(vl_hollow_logs.logs) do
